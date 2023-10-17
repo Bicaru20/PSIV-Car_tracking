@@ -12,5 +12,9 @@ cars_centroids = object_detection()
 tracker = Tracker()
 
 for centroid in cars_centroids:
-    print(centroid)
+    near_id = tracker.check_nearby(centroid)
+    if near_id is None:
+        tracker.new_id(centroid)
+        continue
+    tracker.update(near_id, centroid)
 

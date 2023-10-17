@@ -6,17 +6,17 @@ class Id:
         self.id = id
         self.x = x
         self.y = y
-        self.last_update = 0
+        #self.last_update = 0
+        self.last_five = {(x,y)}
 
     def update_centroid(self, x, y):
         self.x = x
         self.y = y
-    
-    def new_update(self):
-        self.last_update = 0
+        if len(self.last_five) == 5:
+            self.last_five.pop()
+        self.last_five.add((x, y))       
 
-    def no_update(self):
-        self.last_update += 1
+
 
 class Trucker:
     def __init__(self):
@@ -31,6 +31,7 @@ class Trucker:
     def update(self, object_id, centroid):
         # Update the position of an object with a given ID
         self.tracked_objects[object_id].update_centroid(centroid[0], centroid[1])
+        self.tracked_objects[object_id].new_update()
 
     def check_nearby(self, centroid):
         # Check if a given centroid is close to an existing object
