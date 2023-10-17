@@ -12,6 +12,8 @@ config = {
     "show": True
 }
 
+#TODO: Reduir el soroll de la imatge
+
 def object_detection():
 	stream = cv2.VideoCapture(path_file)
 	fps = FPS().start()

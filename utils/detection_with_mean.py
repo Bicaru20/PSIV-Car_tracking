@@ -9,8 +9,10 @@ path_file = os.path.join(os.path.dirname(os.path.dirname(
     __file__)),'video\\output7.mp4')
 
 config = {
-    "show": True
+    "show": False
 }
+
+#TODO: Reduir el soroll de la imatge i aplicar Yolo
 
 def object_detection():
     stream = cv2.VideoCapture(path_file)
@@ -27,6 +29,9 @@ def object_detection():
 
         frame = imutils.resize(frame, width=450)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        #Eliminate the upper 1/3 of the frame
+        frame = frame[int(frame.shape[0]/3):, :]
+                
 
         if mean is None:
             mean = frame.astype("float")
@@ -51,7 +56,6 @@ def object_detection():
             centroid_x = x + w // 2
             centroid_y = y + h // 2
             centroids.append((centroid_x, centroid_y))
-            cars.append((x, y, x+w, y+h))
             cv2.rectangle(frame, (x,y), (x+w, y+h), (0, 255, 0), 2)
             cv2.circle(frame, (centroid_x, centroid_y), 4, (0, 0, 255), -1)  
         
@@ -59,7 +63,7 @@ def object_detection():
             cv2.imshow("Frame", frame)
             cv2.waitKey(0)
         
-        if cars != []:
+        if centroids != []:
             cars_centroids.append((cars, centroids))
 
         fps.update()
@@ -67,7 +71,7 @@ def object_detection():
 
     cv2.destroyAllWindows()
 
-    return cars, centroids
+    return cars_centroids
 
 if __name__ == "__main__":
     object_detection()
