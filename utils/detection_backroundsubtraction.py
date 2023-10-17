@@ -9,14 +9,14 @@ stream = cv2.VideoCapture('C:/Users/Usuari/OneDrive/Universitat/4-1/PSIV/Tracker
 fps = FPS().start()
 count = 0
 # initializing subtractor 
-fgbg = cv2.createBackgroundSubtractorMOG2().apply()
+fgbg = cv2.createBackgroundSubtractorMOG2()
 
 while True:
 	# grab the frame from the threaded video file stream
 	(grabbed, frame) = stream.read()
 	# if the frame was not grabbed, then we have reached the end
 	# of the stream
-	if not grabbed or count == 100:
+	if not grabbed or count == 1002:
 		break
 	# resize the frame and convert it to grayscale (while still
 	# retaining 3 channels)
