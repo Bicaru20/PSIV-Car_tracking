@@ -6,8 +6,9 @@ class Id:
         self.id = id
         self.x = x
         self.y = y
-        #self.last_update = 0
-        self.last_five = {(x,y)}
+        self.last_update = 0
+        self.first_cor = (x,y)
+        self.last_five = None
 
     def update_centroid(self, x, y):
         self.x = x

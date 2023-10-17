@@ -22,7 +22,7 @@ def object_detection():
     while True:
         (grabbed, frame) = stream.read()
 
-        if not grabbed or count == 100:
+        if not grabbed or count == 1000:
             break
 
         frame = imutils.resize(frame, width=450)
