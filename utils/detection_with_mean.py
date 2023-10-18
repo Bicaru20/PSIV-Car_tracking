@@ -49,7 +49,7 @@ def object_detection():
             cv2.CHAIN_APPROX_SIMPLE)
         cnts = [c for c in cnts if cv2.contourArea(c) > 500]
 
-        cars = []
+  
         centroids = []
         for c in cnts:
             (x, y, w, h) = cv2.boundingRect(c)
@@ -64,7 +64,7 @@ def object_detection():
             cv2.waitKey(0)
         
         if centroids != []:
-            cars_centroids.append((cars, centroids))
+            cars_centroids.append( centroids)
 
         fps.update()
         count += 1
