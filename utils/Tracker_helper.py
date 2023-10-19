@@ -64,7 +64,7 @@ class Tracker:
         direction = []
         objects_to_delete = []
         for object_id in self.tracked_objects:
-            if self.tracked_objects[object_id].last_update > 5 or last_iter:
+            if self.tracked_objects[object_id].last_update > 50 or last_iter:
                 if self.tracked_objects[object_id].last_cor[0] > self.tracked_objects[object_id].first_cor[0]:
                     direction.append('Up')
                 elif self.tracked_objects[object_id].last_cor[0] == self.tracked_objects[object_id].first_cor[0]:
