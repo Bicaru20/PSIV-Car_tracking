@@ -37,7 +37,7 @@ def object_detection():
 		fgmask = fgbg.apply(frame) 
 		cnts, _ = cv2.findContours(fgmask.copy(), cv2.RETR_EXTERNAL,
 				cv2.CHAIN_APPROX_SIMPLE)
-		cnts = [c for c in cnts if cv2.contourArea(c) > 500]
+		cnts = [c for c in cnts if cv2.contourArea(c) > 4000]
 		centroids = []
 		for c in cnts:
 			(x, y, w, h) = cv2.boundingRect(c)
@@ -50,7 +50,7 @@ def object_detection():
 		
 		if config["show"]:
 			cv2.imshow("Frame", frame)
-			cv2.waitKey(0)
+			cv2.waitKey(1)
 
 		if centroids != []:
 			all_centroids.append((centroids, centroids))
