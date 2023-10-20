@@ -12,13 +12,8 @@ class Tracker:
         self.tracked_objects = {}  # Dictionary to store tracked objects by their IDs
 
     def new_id(self, centroid):
-        # Check if ID 0 is available, if not, find the first available ID
-        for object_id in range(len(self.tracked_objects) + 1):
-            if object_id not in self.tracked_objects:
-                new_id = object_id
-                break
-        self.tracked_objects[new_id] = Id(new_id, centroid[0], centroid[1])
-        return new_id
+        new_car = Id(centroid[0], centroid[1])
+        self.tracked_objects[new_car.id] = new_car
 
     def update(self, object_id, centroid):
         # Update the position of an object with a given ID
@@ -40,10 +35,10 @@ class Tracker:
                 return min_distance_object_id
         return None
 
-    def increment_last_updates(self):
+    def increment_updates(self):
         # Increment the last_update counters for objects that were not updated in the current iteration
         for object_id in self.tracked_objects:
-            self.tracked_objects[object_id].increment_last_update()
+            self.tracked_objects[object_id].increment_not_updated()
 
     def get_tracked_objects(self):
         # Get a list of tracked objects
@@ -69,3 +64,25 @@ class Tracker:
             del self.tracked_objects[object_id]
 
         return direction
+    
+    def identify_cars(self,centroids):
+        for centroid in centroids:
+            find_id = self.check_nearby(centroid)
+            if find_id == None:
+                # Create new car
+                self.new_id(centroid[0],centroid[1])
+            else:
+                self.update(find_id,centroid)
+        
+        self.increment_updates()
+
+        for cars in self.tracked_objects:
+            if cars.last_update > 8:
+                 del self.tracked_objects[cars]
+
+        
+
+
+
+
+
