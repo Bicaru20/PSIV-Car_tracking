@@ -86,7 +86,7 @@ class Tracker:
     def get_car_direction(self,object_id, last_iter=False):
         if self.tracked_objects[object_id].y > self.tracked_objects[object_id].last_cor[1]:
             direction='DOWN'
-        elif  self.tracked_objects[object_id].x < self.tracked_objects[object_id].last_cor[0]:
+        elif  self.tracked_objects[object_id].y < self.tracked_objects[object_id].last_cor[1]:
             direction='UP'
         else:
             direction='NO MOVEMENT'
