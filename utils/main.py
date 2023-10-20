@@ -1,5 +1,4 @@
 import cv2
-from ultralytics import YOLO
 import os
 
 from Yolo import Yolo
@@ -11,22 +10,22 @@ if __name__ == '__main__':
     path_file = os.path.join(os.path.dirname(os.path.dirname(
         __file__)), 'videos/short.mp4')
 
+    # Open the video file
+    video_path = path_file
+    cap = cv2.VideoCapture(video_path)
+
     # Initialize the YOLOv8 model
     yolo = Yolo('yolov8n.pt')
 
     # Initialize the Tracker
-    tracker = Tracker()
+    tracker = Tracker(cap)
 
-    # Open the video file
-    video_path = path_file
-    cap = cv2.VideoCapture(video_path)
     count = 0
 
     while cap.isOpened():
 
         # Temporal limit
-        count += 1
-        if count == 200:
+        if count >= 200:
             break
 
         # Read the frame
@@ -45,7 +44,7 @@ if __name__ == '__main__':
         # Track the cars
         tracker.identify_cars(centroids)
         tracker.update_counters()
-        tracker.update_output(print_output=True)
+        tracker.update_output(frame, print_output=True)
 
         # Display the number of cars going up, down and left
         print("---------------------------------------------")
@@ -60,3 +59,10 @@ if __name__ == '__main__':
         print("Current Left: ", tracker.get_left())
         print("Current Right: ", tracker.get_right())
         print("\n")
+
+        count += 5  # i.e. at 30 fps, this advances one second
+        cap.set(cv2.CAP_PROP_POS_FRAMES, count)
+
+    cap.release()
+    tracker.writer.release()
+    cv2.destroyAllWindows()

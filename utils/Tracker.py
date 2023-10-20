@@ -1,15 +1,34 @@
+from helper import create_video_writer
+from deep_sort.tools import generate_detections as gdet
+from deep_sort.deep_sort.detection import Detection
+from deep_sort.deep_sort import nn_matching
+from deep_sort.deep_sort.tracker import Tracker
+from collections import deque
+from ultralytics import YOLO
+import datetime
 import os
-import sys
 import cv2
 import numpy as np
 from scipy.spatial import distance
 
 from Id import Id
 
+START_LINE_A = (114, 695)
+END_LINE_A = (268, 695)
+START_LINE_B = (278, 695)
+END_LINE_B = (420, 695)
+
 
 class Tracker:
-    def __init__(self):
+    def __init__(self, cap):
+        self.cap = cap  # Video capture
+        self.total_up = 0
+        self.total_down = 0
+        self.n_frames = 0  # Number of frame
         self.tracked_objects = {}  # Dictionary to store tracked objects by their IDs
+        # Output video
+        self.output = cv2.VideoWriter(os.path.join(os.path.dirname(
+            os.path.dirname(__file__)), 'output/output.mp4'), cv2.VideoWriter_fourcc(*'MP4V'), 30, (int(cap.get(3)), int(cap.get(4))), True)
 
     def new_id(self, centroid):
         # Check if ID 0 is available, if not, find the first available ID
@@ -49,23 +68,65 @@ class Tracker:
         # Get a list of tracked objects
         return list(self.tracked_objects.values())
 
-    def get_direction(self, last_iter=False):
-        # Get the direction of the tracked object
-        direction = []
-        objects_to_delete = []
+    def update_output(self, frame, print_output=False):
+        # Update the output video with the current frame
+        overlay = frame.copy()
+        cv2.line(frame, START_LINE_A, END_LINE_A, (0, 255, 0), 12)
+        cv2.line(frame, START_LINE_B, END_LINE_B, (255, 0, 0), 12)
+        frame = cv2.addWeighted(overlay, 0.5, frame, 0.5, 0)
         for object_id in self.tracked_objects:
-            if self.tracked_objects[object_id].last_update > 50 or last_iter:
-                if self.tracked_objects[object_id].last_cor[0] > self.tracked_objects[object_id].first_cor[0]:
-                    direction.append('Up')
-                elif self.tracked_objects[object_id].last_cor[0] == self.tracked_objects[object_id].first_cor[0]:
-                    direction.append('No movement')
-                else:
-                    direction.append('Down')
+            if not self.tracked_objects[object_id].last_updated:
+                continue
+            centroid = (
+                self.tracked_objects[object_id].x, self.tracked_objects[object_id].y)
+            x1 = centroid[0] - 5
+            y1 = centroid[1] - 5
+            x2 = centroid[0] + 5
+            y2 = centroid[1] + 5
 
-                objects_to_delete.append(object_id)
+            # Draw the bounding box of the object and the track id
+            text = f"{object_id.id} ({object_id.last_direction_x} - {object_id.last_direction_y})"
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 3)
+            cv2.rectangle(
+                frame, (x1 - 1, y1 - 20), (x1 + len(text)
+                                           * 12, y1), (0, 0, 255), -1
+            )
+            cv2.putText(
+                frame,
+                text,
+                (x1 + 5, y1 - 8),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 255),
+                2,
+            )
+            cv2.circle(frame, (object_id.x, object_id.y), 4, (0, 255, 0), -1)
+            for i in range(1, len(object_id.path)):
+                point1 = object_id.path[i - 1]
+                point2 = object_id.path[i]
+                cv2.line(frame, (point1), (point2), (0, 255, 0), 2)
 
-        # Delete tracked objects outside of the loop
-        for object_id in objects_to_delete:
-            del self.tracked_objects[object_id]
+            fps = self.cap.get(cv2.CAP_PROP_FPS)
+            cv2.putText(frame, f"FPS: {fps:.2f}", (50, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 8)
+            cv2.putText(
+                frame, f"Up - {self.total_up}", (START_LINE_A[0] - 20, START_LINE_A[1] -
+                                                 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2
+            )
+            cv2.putText(
+                frame, f"Down - {self.total_down}", (START_LINE_B[0] - 20, START_LINE_B[1] -
+                                                     10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2
+            )
 
-        return direction
+        if print_output:
+            # Show the output frame
+            cv2.imshow("Output", frame)
+            print("-" * 50)
+            print("Counter Up: ", self.total_up)
+            print("Counter Down: ", self.total_down)
+            print("-" * 50)
+
+        # Write the frame to the output video
+        self.output.write(frame)
+
+        return frame
