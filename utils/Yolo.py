@@ -7,13 +7,15 @@ config = {
 }
 
 
-class Yolo:
-    def __init__(self, model_path):
-        self.model = YOLO(model_path)
+class Predictor:
+    def __init__(self, model_path,model_our):
+        self.model_yolo = YOLO(model_path)
+        self.model_our = model_our
 
-    def detect(self, frame):
 
-        results = self.model(frame)
+    def detect_yolo(self, frame):
+
+        results = self.model_yolo(frame)
 
         # Extract centroids of car contours
         if len(results) == 0:
@@ -43,8 +45,12 @@ class Yolo:
             cv2.waitKey(0)
 
         return centroids
+    
+    def detect_our(self,frame):
+        # Our predictor LINEAR REGRESSION??
+        return None
 
 
 if __name__ == '__main__':
-    yolo = Yolo('yolov8n.pt')
-    yolo.detect(cv2.imread(os.path.join(os.path.dirname(__file__), "../videos/test.jpg")))
+    yolo = Predictor('yolov8n.pt')
+    yolo.detect_yolo(cv2.imread(os.path.join(os.path.dirname(__file__), "../videos/test.jpg")))
