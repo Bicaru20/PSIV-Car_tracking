@@ -6,7 +6,7 @@ path_file = os.path.join(os.path.dirname(os.path.dirname(
         __file__)),'video\\output7.mp4')
 
 config = {
-    "show": False
+    "show": True
 }
 
 
@@ -39,6 +39,37 @@ def yolo_detection(model, frame):
         cv2.waitKey(1)
     
     return centroids
+
+def yolo_detection_2(model,frame):
+    results = model(frame)
+
+    # Visualize the results on the frame
+
+    # Extract centroids of car contours
+    if len(results) == 0:
+        return None
+    centroids = []
+    x_values = []
+    y_values = []
+    w_values = []
+    h_values = []
+    for car_result in results:
+        for data in car_result.boxes.data.tolist():
+            x1, y1, x2, y2, _, clas = data
+            if clas == 2:
+                x = int(x1)
+                y = int(y1)
+                w = int(x2) - int(x1)
+                h = int(y2) - int(y1)
+                centroid_x = x + w // 2
+                centroid_y = y + h // 2
+                centroids.append((centroid_x, centroid_y))
+                x_values.append(x)
+                y_values.append(y)
+                w_values.append(w)
+                h_values.append(h)
+    return centroids,x_values,y_values,w_values,h_values
+
         
     
 

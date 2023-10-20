@@ -11,10 +11,13 @@ class Id:
         self.last_cor = (x, y)
 
     def update_centroid(self, x, y):
+        self.last_cor = (self.x, self.y)
         self.x = x
         self.y = y
-        self.last_cor = (x, y)
         self.last_update = 0
+        # I changed it so that x and y are the actual coordinates of the centroid and
+        # last_cor are the last coordinates of the centroid because it will be much easier to calculate
+        # if it goes down or up
 
     def increment_last_update(self):
         self.last_update += 1
@@ -79,6 +82,18 @@ class Tracker:
             del self.tracked_objects[object_id]
 
         return direction
+    
+    def get_car_direction(self,object_id, last_iter=False):
+        if self.tracked_objects[object_id].y > self.tracked_objects[object_id].last_cor[1]:
+            direction='DOWN'
+        elif  self.tracked_objects[object_id].x < self.tracked_objects[object_id].last_cor[0]:
+            direction='UP'
+        else:
+            direction='NO MOVEMENT'
+        return direction
+
+
+
 
 
 

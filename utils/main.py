@@ -38,6 +38,8 @@ while cap.isOpened():
     print('Up: ', Up)
     print('Down: ', Down)
 
+
+
 #We need to do this because the last iteration of the loop does not get appended to the direction list
 direction = tracker(centroids, direction, last_iter=True)
 for x in direction:

@@ -28,6 +28,19 @@ def tracker(cars_centroids, direction = [], last_iter=False):
 
     return direction
 
+def tracker_2(centroid,last_iter=False):
+    if not last_iter:
+        if centroid != []:
+            near_id = track.check_nearby(centroid)
+        if near_id is not None:
+            track.update(near_id, centroid)
+            track.increment_last_updates()
+            direction = track.get_car_direction(near_id)
+        else:
+            id_new =track.new_id(centroid)
+            direction = track.get_car_direction(id_new)
+        return direction
+
 
 #TODO: Comprovar que el moviment no sigui horitzontal
 
