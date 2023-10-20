@@ -1,17 +1,8 @@
-from helper import create_video_writer
-from deep_sort.tools import generate_detections as gdet
-from deep_sort.deep_sort.detection import Detection
-from deep_sort.deep_sort import nn_matching
-from deep_sort.deep_sort.tracker import Tracker
-from collections import deque
-from ultralytics import YOLO
-import datetime
 import os
 import cv2
-import numpy as np
 from scipy.spatial import distance
 
-from Id import Id
+from utils.Id import Id
 
 START_LINE_A = (114, 695)
 END_LINE_A = (268, 695)

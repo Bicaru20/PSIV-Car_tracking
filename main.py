@@ -1,8 +1,8 @@
 import cv2
 import os
 
-from Yolo import Yolo
-from Tracker import Tracker
+from utils.Predictor import Predictor
+from utils.Tracker import Tracker
 
 if __name__ == '__main__':
 
@@ -10,17 +10,20 @@ if __name__ == '__main__':
     path_file = os.path.join(os.path.dirname(os.path.dirname(
         __file__)), 'videos/short.mp4')
 
-    # Open the video file
-    video_path = path_file
-    cap = cv2.VideoCapture(video_path)
+    print(path_file)
+
+    cap = cv2.VideoCapture(path_file)
 
     # Initialize the YOLOv8 model
-    yolo = Yolo('yolov8n.pt')
+    predictor = Predictor(yolo_model_path='yolov8n.pt')
 
     # Initialize the Tracker
     tracker = Tracker(cap)
 
     count = 0
+
+    print("Starting the video...")
+    print(f"Cap Status: {cap.isOpened()}")
 
     while cap.isOpened():
 
@@ -33,11 +36,12 @@ if __name__ == '__main__':
 
         # Check if we are at the end of the video
         if not success:
+            print("End of the video")
             cap.release()
             break
 
         # Detect cars in the frame
-        centroids = yolo.detect(frame)
+        centroids = predictor.detect_with_yolo(frame)
         if centroids is None:
             continue
 
@@ -60,9 +64,9 @@ if __name__ == '__main__':
         print("Current Right: ", tracker.get_right())
         print("\n")
 
-        count += 5  # i.e. at 30 fps, this advances one second
+        count += 5
         cap.set(cv2.CAP_PROP_POS_FRAMES, count)
 
     cap.release()
-    tracker.writer.release()
+    tracker.output.release()
     cv2.destroyAllWindows()
