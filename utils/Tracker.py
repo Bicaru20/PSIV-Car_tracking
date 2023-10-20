@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-from utils.Tracker_helper import Tracker
+from Tracker_helper import Tracker
 
 track = Tracker()
 
