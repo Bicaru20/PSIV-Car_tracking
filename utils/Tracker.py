@@ -1,34 +1,71 @@
 import os
 import sys
+import cv2
+import numpy as np
+from scipy.spatial import distance
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-
-from utils.Tracker_helper import Tracker
-
-track = Tracker()
-
-def tracker(cars_centroids, direction = [], last_iter=False):
-
-    if not last_iter:
-        for centroid in cars_centroids:
-            if centroid == []:
-                continue
-            near_id = track.check_nearby(centroid)
-            if near_id is None:
-                track.new_id(centroid)
-                continue
-            track.update(near_id, centroid)
-            track.increment_last_updates()
-
-        direction.extend(track.get_direction(last_iter=last_iter))
-
-    else:
-        direction.extend(track.get_direction(last_iter=last_iter))
-
-    return direction
+from Id import Id
 
 
-#TODO: Comprovar que el moviment no sigui horitzontal
+class Tracker:
+    def __init__(self):
+        self.tracked_objects = {}  # Dictionary to store tracked objects by their IDs
 
+    def new_id(self, centroid):
+        # Check if ID 0 is available, if not, find the first available ID
+        for object_id in range(len(self.tracked_objects) + 1):
+            if object_id not in self.tracked_objects:
+                new_id = object_id
+                break
+        self.tracked_objects[new_id] = Id(new_id, centroid[0], centroid[1])
+        return new_id
 
+    def update(self, object_id, centroid):
+        # Update the position of an object with a given ID
+        self.tracked_objects[object_id].update_centroid(
+            centroid[0], centroid[1])
+
+    def check_nearby(self, centroid):
+        # Check if a given centroid is close to an existing object
+        if len(self.tracked_objects) != 0:
+            distances = {}
+            for object_id in self.tracked_objects:
+                d = distance.euclidean(
+                    (self.tracked_objects[object_id].x, self.tracked_objects[object_id].y), centroid)
+                distances[object_id] = d
+
+            # Keep the object ID with the smallest distance and check if it is below a certain threshold
+            min_distance_object_id = min(distances, key=distances.get)
+            if distances[min_distance_object_id] < 100:
+                return min_distance_object_id
+        return None
+
+    def increment_last_updates(self):
+        # Increment the last_update counters for objects that were not updated in the current iteration
+        for object_id in self.tracked_objects:
+            self.tracked_objects[object_id].increment_last_update()
+
+    def get_tracked_objects(self):
+        # Get a list of tracked objects
+        return list(self.tracked_objects.values())
+
+    def get_direction(self, last_iter=False):
+        # Get the direction of the tracked object
+        direction = []
+        objects_to_delete = []
+        for object_id in self.tracked_objects:
+            if self.tracked_objects[object_id].last_update > 50 or last_iter:
+                if self.tracked_objects[object_id].last_cor[0] > self.tracked_objects[object_id].first_cor[0]:
+                    direction.append('Up')
+                elif self.tracked_objects[object_id].last_cor[0] == self.tracked_objects[object_id].first_cor[0]:
+                    direction.append('No movement')
+                else:
+                    direction.append('Down')
+
+                objects_to_delete.append(object_id)
+
+        # Delete tracked objects outside of the loop
+        for object_id in objects_to_delete:
+            del self.tracked_objects[object_id]
+
+        return direction
