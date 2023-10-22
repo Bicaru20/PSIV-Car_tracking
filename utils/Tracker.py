@@ -131,3 +131,29 @@ class Tracker:
         for cars in self.tracked_objects:
             if cars.last_update > 8:
                 del self.tracked_objects[cars]
+    
+    def update_counters():
+    
+        start_line_A = (114, 400)
+        end_line_A = (268, 400)
+        start_line_B = (278, 400)
+        end_line_B = (420, 400)
+        
+        up = 0
+        down = 0
+        for i in self.tracked_objects:
+            y_last = i.path[-1][1]
+            y_5 = i.path[-6][1]
+            x = i.path[-1][0]
+            
+            if (start_line_A[0] <= x and x <= end_line_A[0]) and (y_5 < start_line_A[1] and y_last >= start_line_A[1]):
+                self.count_down += 1
+            elif (start_line_B[0] <= x and x <= end_line_B[0]) and (y_5 > start_line_B[1] and y_last <= start_line_B[1]):
+                self.count_up += 1
+                
+    def get_counter_up():
+        return self.count_up
+            
+            
+    def get_counter_down():
+        return self.count_down
