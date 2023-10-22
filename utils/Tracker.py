@@ -16,7 +16,9 @@ class Tracker:
         self.total_up = 0
         self.total_down = 0
         self.n_frames = 0  # Number of frame
-        self.tracked_objects = {}  # Dictionary to store tracked objects by their IDs
+        self.tracked_objects = {}  # Dictionary to store tracked objects by their IDs  
+        self.count_up = 0
+        self.count_down = 0
         # Output video
         self.output = cv2.VideoWriter(os.path.join(os.path.dirname(
             os.path.dirname(__file__)), 'output/output.mp4'), cv2.VideoWriter_fourcc(*'MP4V'), 30, (int(cap.get(3)), int(cap.get(4))), True)
