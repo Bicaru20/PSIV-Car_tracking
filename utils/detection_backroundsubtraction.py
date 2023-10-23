@@ -6,11 +6,48 @@ import cv2
 import os 
 
 path_file = os.path.join(os.path.dirname(os.path.dirname(
-    __file__)),'video\\output7.mp4')
+    __file__)),'video\\short.mp4')
 
 config = {
     "show": True
 }
+
+
+def detect_with_background_subtraction(self, frame):
+	output = frame.copy()
+
+	# Apply background subtraction
+	fg_mask = self.apply(frame)
+
+	# Clean up the mask (optional)
+	kernel = np.ones((5, 5), np.uint8)
+	fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)
+
+	dilation_kernel = np.ones((8, 8), np.uint8)  # Adjust the kernel size as needed
+	fg_mask = cv2.dilate(fg_mask, dilation_kernel)
+
+	# Find contours in the foreground mask
+	contours, _ = cv2.findContours(fg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+	centroids = []
+
+	for contour in contours:
+		x, y, w, h = cv2.boundingRect(contour)
+
+		# Calculate centroid
+		centroid_x = x + w // 2
+		centroid_y = y + h // 2
+
+		# Ensure the detected object is of a minimum size
+		if w > 45 and h > 45:
+			centroids.append((centroid_x, centroid_y))
+			cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
+			cv2.circle(output, (centroid_x, centroid_y), 4, (0, 0, 255), -1)
+
+	# Display the annotated frame
+	if config["show"]:
+		cv2.imshow("Background Subtraction", output)
+		cv2.waitKey(0)
 
 #TODO: Reduir el soroll de la imatge
 
@@ -31,29 +68,7 @@ def object_detection():
 			break
 		# resize the frame and convert it to grayscale (while still
 		# retaining 3 channels)
-		frame = imutils.resize(frame, width=450)
-		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-		frame = np.dstack([frame, frame, frame])
-		fgmask = fgbg.apply(frame) 
-		cnts, _ = cv2.findContours(fgmask.copy(), cv2.RETR_EXTERNAL,
-				cv2.CHAIN_APPROX_SIMPLE)
-		cnts = [c for c in cnts if cv2.contourArea(c) > 4000]
-		centroids = []
-		for c in cnts:
-			(x, y, w, h) = cv2.boundingRect(c)
-			centroid_x = x + w // 2
-			centroid_y = y + h // 2
-			centroids.append((centroid_x, centroid_y))
-			
-			cv2.rectangle(frame, (x,y), (x+w, y+h), (0, 255, 0), 2)
-			cv2.circle(frame, (centroid_x, centroid_y), 4, (0, 0, 255), -1)
-		
-		if config["show"]:
-			cv2.imshow("Frame", frame)
-			cv2.waitKey(1)
-
-		if centroids != []:
-			all_centroids.append((centroids, centroids))
+		detect_with_background_subtraction(fgbg, frame)
 	
 		fps.update()
 		count += 1

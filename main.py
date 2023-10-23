@@ -1,13 +1,13 @@
 import cv2
 import time
 
-from utils.Predictor import Predictor
+from utils.predictor import Predictor
 from utils.Tracker import Tracker
 
 if __name__ == '__main__':
 
     # Path to the video file
-    path_file = "videos/short.mp4"
+    path_file = "video\short.mp4"
 
     cap = cv2.VideoCapture(path_file)
 
@@ -60,6 +60,9 @@ if __name__ == '__main__':
         print("Counter UP:", tracker.get_counter_up())
         print("Counter DOWN:", tracker.get_counter_down())
         print("---------------------------------------------""")
+        print("Counter LEFT:", tracker.get_counter_left())
+        print("Counter RIGHT:", tracker.get_counter_right())
+        print("---------------------------------------------")
         print("Current Up: ", tracker.get_current_up())
         print("Current Down: ", tracker.get_current_down())
         print("Current Left: ", tracker.get_current_left())

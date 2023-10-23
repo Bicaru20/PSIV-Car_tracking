@@ -10,13 +10,13 @@ START_LINE_B = (290, 400)
 END_LINE_B = (390, 400)
 START_LINE_UNIQUE = (190, 400)
 END_LINE_UNIQUE = (390, 400)
-START_LINE_LEFT = (190, 400)
-END_LINE_LEFT = (190, 400)
-START_LINE_RIGHT = (390, 400)
-END_LINE_RIGHT = (390, 400)
+START_LINE_LEFT = (200, 210)
+END_LINE_LEFT = (200, 350)
+START_LINE_RIGHT = (450, 210)
+END_LINE_RIGHT = (450, 350)
 
 config = {
-    "n_lines": 1,
+    "n_lines": 2,
     "check_vertical": True,
 }
 
@@ -87,6 +87,9 @@ class Tracker:
         elif config["n_lines"] == 2:
             cv2.line(frame, START_LINE_A, END_LINE_A, (0, 255, 0), 12)
             cv2.line(frame, START_LINE_B, END_LINE_B, (255, 0, 0), 12)
+        if config["check_vertical"]:
+            cv2.line(frame, START_LINE_LEFT, END_LINE_LEFT, (0, 255, 255), 12)
+            cv2.line(frame, START_LINE_RIGHT, END_LINE_RIGHT, (255, 255, 0), 12)
         frame = cv2.addWeighted(overlay, 0.5, frame, 0.5, 0)
         for object_id in self.tracked_objects:
             car = self.tracked_objects[object_id]
@@ -137,10 +140,18 @@ class Tracker:
             frame, f"Down - {self.count_down}", (START_LINE_A[0], START_LINE_A[1] -
                                                  10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2
         )
+        cv2.putText(
+            frame, f"Left - {self.count_left}", (START_LINE_LEFT[0], START_LINE_LEFT[1] -
+                                                 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2
+        )
+        cv2.putText(
+            frame, f"Right - {self.count_right}", (START_LINE_RIGHT[0], START_LINE_RIGHT[1] -
+                                                   10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2
+        )
 
         if print_output:
             cv2.imshow("Output", frame)
-            cv2.waitKey(0)
+            cv2.waitKey(1)
 
         # Write the frame to the output video
         self.output.write(frame)

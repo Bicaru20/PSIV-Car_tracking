@@ -6,7 +6,7 @@ import os
 
 
 path_file = os.path.join(os.path.dirname(os.path.dirname(
-    __file__)), 'video\\output7.mp4')
+    __file__)), 'video\\short.mp4')
 
 config = {
     "show": False
