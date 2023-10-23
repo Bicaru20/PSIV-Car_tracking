@@ -203,11 +203,11 @@ class Tracker:
                     self.tracked_objects[car].updated_counter = 5
             if config["check_vertical"]:
                 if (START_LINE_LEFT[1] <= y_last and y_last <= END_LINE_LEFT[1]) and (x_last_5 < START_LINE_LEFT[0] and x_last > START_LINE_LEFT[0]) and self.tracked_objects[car].updated_counter == 0:
-                    if self.tracked_objects[car].crossed_left == False:
+                    if self.tracked_objects[car].crossed_left == False and self.tracked_objects[car].crossed_right == False:
                         self.tracked_objects[car].crossed_left = True
                     self.tracked_objects[car].updated_counter = 5
                 elif (START_LINE_RIGHT[1] <= y_last and y_last <= END_LINE_RIGHT[1]) and (x_last_5 > START_LINE_RIGHT[0] and x_last < START_LINE_RIGHT[0]) and self.tracked_objects[car].updated_counter == 0:
-                    if self.tracked_objects[car].crossed_right == False:
+                    if self.tracked_objects[car].crossed_right == False and self.tracked_objects[car].crossed_left == False:
                         self.tracked_objects[car].crossed_right = True
                     self.tracked_objects[car].updated_counter = 5
                 elif (START_LINE_LEFT[1] <= y_last and y_last <= END_LINE_LEFT[1]) and (x_last_5 > START_LINE_LEFT[0] and x_last < START_LINE_LEFT[0]) and self.tracked_objects[car].updated_counter == 0:
@@ -226,6 +226,12 @@ class Tracker:
 
     def get_counter_down(self):
         return self.count_down
+    
+    def get_counter_left(self):
+        return self.count_left
+    
+    def get_counter_right(self):
+        return self.count_right
 
     def get_current_up(self):
         current_up = 0
