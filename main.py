@@ -1,5 +1,5 @@
 import cv2
-import os
+import time
 
 from utils.Predictor import Predictor
 from utils.Tracker import Tracker
@@ -7,10 +7,7 @@ from utils.Tracker import Tracker
 if __name__ == '__main__':
 
     # Path to the video file
-    path_file = os.path.join(os.path.dirname(os.path.dirname(
-        __file__)), 'videos/short.mp4')
-
-    print(path_file)
+    path_file = "videos/short.mp4"
 
     cap = cv2.VideoCapture(path_file)
 
@@ -22,14 +19,17 @@ if __name__ == '__main__':
 
     count = 0
 
+    print("\n" + "-" * 50)
     print("Starting the video...")
     print(f"Cap Status: {cap.isOpened()}")
 
     while cap.isOpened():
 
+        start_time = time.time()
+
         # Temporal limit
-        if count >= 200:
-            break
+        if count >= 400:
+            pass
 
         # Read the frame
         success, frame = cap.read()
@@ -48,20 +48,21 @@ if __name__ == '__main__':
         # Track the cars
         tracker.identify_cars(centroids)
         tracker.update_counters()
-        tracker.update_output(frame, print_output=True)
+        tracker.update_output(frame=frame, n_frame=count,
+                              fps=1 / (time.time() - start_time), print_output=False)
 
         # Display the number of cars going up, down and left
-        print("---------------------------------------------")
+        print("\n---------------------------------------------")
         print("Frame: ", count)
-        print("FPS: ", cap.get(cv2.CAP_PROP_FPS))
+        print("FPS: ", 1 / (time.time() - start_time))
         print("---------------------------------------------")
         print("Counter UP:", tracker.get_counter_up())
         print("Counter DOWN:", tracker.get_counter_down())
         print("---------------------------------------------""")
         print("Current Up: ", tracker.get_current_up())
-        print("Current Down: ", tracker.get_down())
-        print("Current Left: ", tracker.get_left())
-        print("Current Right: ", tracker.get_right())
+        print("Current Down: ", tracker.get_current_down())
+        print("Current Left: ", tracker.get_current_left())
+        print("Current Right: ", tracker.get_current_right())
         print("\n")
 
         count += 5
