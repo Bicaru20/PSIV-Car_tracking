@@ -41,7 +41,8 @@ if __name__ == '__main__':
             break
 
         # Detect cars in the frame
-        centroids = predictor.detect_with_yolo(frame)
+        centroids = predictor.predict(frame)
+
         if centroids is None:
             continue
 

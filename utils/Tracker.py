@@ -8,6 +8,17 @@ START_LINE_A = (190, 400)
 END_LINE_A = (285, 400)
 START_LINE_B = (290, 400)
 END_LINE_B = (390, 400)
+START_LINE_UNIQUE = (190, 400)
+END_LINE_UNIQUE = (390, 400)
+START_LINE_LEFT = (190, 400)
+END_LINE_LEFT = (190, 400)
+START_LINE_RIGHT = (390, 400)
+END_LINE_RIGHT = (390, 400)
+
+config = {
+    "n_lines": 1,
+    "check_vertical": True,
+}
 
 
 class Tracker:
@@ -15,6 +26,8 @@ class Tracker:
         self.cap = cap  # Video capture
         self.count_up = 0
         self.count_down = 0
+        self.count_right = 0
+        self.count_left = 0
         self.n_frame = 0  # Number of frame
         self.tracked_objects = {}  # Dictionary to store tracked objects by their IDs
         # Create the output folder if it does not exist
@@ -69,8 +82,11 @@ class Tracker:
         self.n_frame = n_frame
         # Update the output video with the current frame
         overlay = frame.copy()
-        cv2.line(frame, START_LINE_A, END_LINE_A, (0, 255, 0), 12)
-        cv2.line(frame, START_LINE_B, END_LINE_B, (255, 0, 0), 12)
+        if config["n_lines"] == 1:
+            cv2.line(frame, START_LINE_UNIQUE, END_LINE_UNIQUE, (0, 255, 0), 12)
+        elif config["n_lines"] == 2:
+            cv2.line(frame, START_LINE_A, END_LINE_A, (0, 255, 0), 12)
+            cv2.line(frame, START_LINE_B, END_LINE_B, (255, 0, 0), 12)
         frame = cv2.addWeighted(overlay, 0.5, frame, 0.5, 0)
         for object_id in self.tracked_objects:
             car = self.tracked_objects[object_id]
@@ -151,20 +167,48 @@ class Tracker:
             del self.tracked_objects[car]
 
     def update_counters(self):
-
         for car in self.tracked_objects:
             self.tracked_objects[car].updated_counter -= 1 if self.tracked_objects[car].updated_counter > 0 else 0
-            y_last = self.tracked_objects[car].path[-1][1]
             x_last = self.tracked_objects[car].path[-1][0]
+            y_last = self.tracked_objects[car].path[-1][1]
+            x_last_5 = self.tracked_objects[car].path[-6][0] if len(
+                self.tracked_objects[car].path) > 5 else self.tracked_objects[car].path[0][0]
             y_last_5 = self.tracked_objects[car].path[-6][1] if len(
                 self.tracked_objects[car].path) > 5 else self.tracked_objects[car].path[0][1]
 
-            if (START_LINE_A[0] <= x_last and x_last <= END_LINE_A[0]) and (y_last_5 < START_LINE_A[1] and y_last > START_LINE_A[1]) and self.tracked_objects[car].updated_counter == 0:
-                self.count_down += 1
-                self.tracked_objects[car].updated_counter = 5
-            elif (START_LINE_B[0] <= x_last and x_last <= END_LINE_B[0]) and (y_last_5 > START_LINE_B[1] and y_last < START_LINE_B[1]) and self.tracked_objects[car].updated_counter == 0:
-                self.count_up += 1
-                self.tracked_objects[car].updated_counter = 5
+            if config["n_lines"] == 1:
+                if (START_LINE_UNIQUE[0] <= x_last and x_last <= END_LINE_UNIQUE[0]) and (y_last_5 < START_LINE_UNIQUE[1] and y_last > START_LINE_UNIQUE[1]) and self.tracked_objects[car].updated_counter == 0:
+                    self.count_down += 1
+                    self.tracked_objects[car].updated_counter = 5
+                elif (START_LINE_UNIQUE[0] <= x_last and x_last <= END_LINE_UNIQUE[0]) and (y_last_5 > START_LINE_UNIQUE[1] and y_last < START_LINE_UNIQUE[1]) and self.tracked_objects[car].updated_counter == 0:
+                    self.count_up += 1
+                    self.tracked_objects[car].updated_counter = 5
+            else:
+                if (START_LINE_A[0] <= x_last and x_last <= END_LINE_A[0]) and (y_last_5 < START_LINE_A[1] and y_last > START_LINE_A[1]) and self.tracked_objects[car].updated_counter == 0:
+                    self.count_down += 1
+                    self.tracked_objects[car].updated_counter = 5
+                elif (START_LINE_B[0] <= x_last and x_last <= END_LINE_B[0]) and (y_last_5 > START_LINE_B[1] and y_last < START_LINE_B[1]) and self.tracked_objects[car].updated_counter == 0:
+                    self.count_up += 1
+                    self.tracked_objects[car].updated_counter = 5
+            if config["check_vertical"]:
+                if (START_LINE_LEFT[1] <= y_last and y_last <= END_LINE_LEFT[1]) and (x_last_5 < START_LINE_LEFT[0] and x_last > START_LINE_LEFT[0]) and self.tracked_objects[car].updated_counter == 0:
+                    if self.tracked_objects[car].crossed_left == False:
+                        self.tracked_objects[car].crossed_left = True
+                    self.tracked_objects[car].updated_counter = 5
+                elif (START_LINE_RIGHT[1] <= y_last and y_last <= END_LINE_RIGHT[1]) and (x_last_5 > START_LINE_RIGHT[0] and x_last < START_LINE_RIGHT[0]) and self.tracked_objects[car].updated_counter == 0:
+                    if self.tracked_objects[car].crossed_right == False:
+                        self.tracked_objects[car].crossed_right = True
+                    self.tracked_objects[car].updated_counter = 5
+                elif (START_LINE_LEFT[1] <= y_last and y_last <= END_LINE_LEFT[1]) and (x_last_5 > START_LINE_LEFT[0] and x_last < START_LINE_LEFT[0]) and self.tracked_objects[car].updated_counter == 0:
+                    if self.tracked_objects[car].crossed_left == False and self.tracked_objects[car].crossed_right == True:
+                        self.count_left += 1
+                    self.tracked_objects[car].crossed_left = True
+                    self.tracked_objects[car].updated_counter = 5
+                elif (START_LINE_RIGHT[1] <= y_last and y_last <= END_LINE_RIGHT[1]) and (x_last_5 < START_LINE_RIGHT[0] and x_last > START_LINE_RIGHT[0]) and self.tracked_objects[car].updated_counter == 0:
+                    if self.tracked_objects[car].crossed_right == False and self.tracked_objects[car].crossed_left == True:
+                        self.count_right += 1
+                    self.tracked_objects[car].crossed_right = True
+                    self.tracked_objects[car].updated_counter = 5
 
     def get_counter_up(self):
         return self.count_up

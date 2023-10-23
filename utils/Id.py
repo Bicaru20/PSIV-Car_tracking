@@ -14,6 +14,8 @@ class Id:
         self.last_direction_y = None  # up, down, None
         self.last_direction_x = None  # left, right, None
         self.updated_counter = 0
+        self.crossed_right = False
+        self.crossed_left = False
 
     def update_centroid(self, x, y, nearby_movement=False):
         if nearby_movement:
@@ -38,5 +40,6 @@ class Id:
         self.last_cor = (self.x, self.y)
 
     def update_last_direction(self):
+        alfa = 2
         self.last_direction_y = "left" if self.path[-2][0] > self.path[-1][0] else "right"
         self.last_direction_x = "up" if self.path[-2][1] > self.path[-1][1] else "down"
