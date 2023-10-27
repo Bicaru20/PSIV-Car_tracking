@@ -1,3 +1,4 @@
+
 # Car Tracking with YOLO v8 and Background Subtraction
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -13,9 +14,11 @@ This repository contains the code and resources for a car tracking system that c
 - Detailed documentation and usage instructions.
 
 ## Dataset
-- Recorded videos from UAB parking lot
+
+Recorded videos from the UAB parking lot are used for training and testing.
 
 ## Step 1: Detecting Cars
+
 In the first step of the project, we implement two distinct approaches to detect and identify cars within video streams or images. These approaches are designed to capture the presence and locations of cars using different methods.
 
 1. YOLO v8 Object Detection:
@@ -44,10 +47,18 @@ By combining these two approaches, we enhance the accuracy and robustness of our
 - OpenCV
 - YOLO v8
 
-
 ## Setup
 
-1. Clone the repository to your local machine:
+1. Clone the repository to your local machine:	`git clone https://github.com/Bicaru20/PSIV-Car_tracking`
 
-   ```shell
-   git clone https://github.com/your-username/car-tracking-yolo-background.git
+## Dataset
+
+The dataset used for training and testing consists of recorded videos from the UAB parking lot. These videos vary in size and complexity, providing a diverse set of scenarios for evaluating the car tracking system.
+
+## Contributing
+
+We welcome contributions to this project. If you find any issues, have suggestions for improvements, or would like to add new features, please feel free to open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the [MIT License](https://chat.openai.com/c/LICENSE).

@@ -83,7 +83,7 @@ if __name__ == '__main__':
         tracker.identify_cars(centroids)
         tracker.update_counters()
         tracker.update_output(frame=frame, n_frame=count,
-                              fps=(1 / (time.time() - start_time) * config["frame_jump"]),
+                              fps=((1 / (time.time() - start_time)) * config["frame_jump"]),
                               print_output=config["show"])
 
         # Display the number of cars going up, down and left
