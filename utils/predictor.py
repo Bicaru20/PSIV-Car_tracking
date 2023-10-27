@@ -1,6 +1,7 @@
 import cv2
 import os
 import numpy as np
+from scipy.spatial import distance
 
 from ultralytics import YOLO
 
@@ -13,18 +14,42 @@ class Predictor:
     def __init__(self, yolo_model_path):
         self.yolo_model = YOLO(yolo_model_path)
         self.background_subtractor = cv2.createBackgroundSubtractorMOG2()
-        self.counter = 0  # Contador para alternar entre métodos
+        self.counter = 5  # Contador para alternar entre métodos
         self.max_counter = 5  # Número de frames para usar background subtraction antes de cambiar a YOLO
+        self._jumping_frames = 1  # Número de frames para saltar
+        self._join_based = None
+        self._bg_centroids = []
 
     def predict(self, frame):
         if self.counter < self.max_counter:
             centroids = self.detect_with_background_subtraction(frame)
+            self._bg_centroids = centroids
+            centroids = self.join_centroids()
+            self._join_based = centroids
             self.counter += 1
         else:
             centroids = self.detect_with_yolo(frame)
+            self._join_based = centroids
             self.counter = 0
-
         return centroids
+
+    def join_centroids(self):
+        not_added_last_centroids = [centroid for centroid in self._join_based]
+        final_centroids = []
+        for bg_centroids in self._bg_centroids:
+            for last_centroid in self._join_based:
+                if self.check_nearby(bg_centroids, last_centroid):
+                    final_centroids.append(bg_centroids)
+                    if last_centroid in not_added_last_centroids:
+                        not_added_last_centroids.remove(last_centroid)
+                    break
+        for centroid in not_added_last_centroids:
+            final_centroids.append(centroid)
+
+        return final_centroids
+
+    def check_nearby(self, bg_centroid, yolo_centroid):
+        return distance.euclidean(bg_centroid, yolo_centroid) < 20
 
     def detect_with_yolo(self, frame):
         output = frame.copy()

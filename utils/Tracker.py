@@ -4,42 +4,41 @@ from scipy.spatial import distance
 
 from utils.Id import Id
 
-START_LINE_A = (190, 400)
-END_LINE_A = (285, 400)
-START_LINE_B = (290, 400)
-END_LINE_B = (390, 400)
-START_LINE_UNIQUE = (190, 400)
-END_LINE_UNIQUE = (390, 400)
-START_LINE_LEFT = (200, 210)
+START_LINE_A = (140, 650)
+END_LINE_A = (275, 650)
+START_LINE_B = (275, 650)
+END_LINE_B = (445, 650)
+START_LINE_UNIQUE = (140, 650)
+END_LINE_UNIQUE = (445, 650)
+START_LINE_LEFT = (200, 250)
 END_LINE_LEFT = (200, 350)
-START_LINE_RIGHT = (450, 210)
-END_LINE_RIGHT = (450, 350)
+START_LINE_RIGHT = (440, 250)
+END_LINE_RIGHT = (440, 350)
 
 config = {
-    "n_lines": 2,
-    "check_vertical": True,
+    "n_lines": 1,
+    "check_vertical": False,
 }
 
 
 class Tracker:
     def __init__(self, cap):
-        self.cap = cap  # Video capture
+        self.cap = cap
         self.count_up = 0
         self.count_down = 0
         self.count_right = 0
         self.count_left = 0
-        self.n_frame = 0  # Number of frame
+        self.n_frame = 0
         self.tracked_objects = {}  # Dictionary to store tracked objects by their IDs
-        # Create the output folder if it does not exist
+
+        # Create the output video
         if not os.path.exists("output"):
             os.makedirs("output")
-        # Check last video number
         last_video = 0
         for file in os.listdir("output"):
             if file.endswith(".mp4"):
                 last_video = max(last_video, int(
                     file.split(".")[0].split("_")[1]))
-        # Create the output video
         self.output = cv2.VideoWriter(f"output/output_{last_video + 1}.mp4", cv2.VideoWriter_fourcc(
             *'MP4V'), 30, (int(cap.get(3)), int(cap.get(4))), True)
 
@@ -82,14 +81,16 @@ class Tracker:
         self.n_frame = n_frame
         # Update the output video with the current frame
         overlay = frame.copy()
-        if config["n_lines"] == 1:
-            cv2.line(frame, START_LINE_UNIQUE, END_LINE_UNIQUE, (0, 255, 0), 12)
-        elif config["n_lines"] == 2:
+        if config["n_lines"] == 0:
+            cv2.line(frame, START_LINE_UNIQUE,
+                     END_LINE_UNIQUE, (0, 255, 0), 12)
+        elif config["n_lines"] == 1:
             cv2.line(frame, START_LINE_A, END_LINE_A, (0, 255, 0), 12)
             cv2.line(frame, START_LINE_B, END_LINE_B, (255, 0, 0), 12)
         if config["check_vertical"]:
             cv2.line(frame, START_LINE_LEFT, END_LINE_LEFT, (0, 255, 255), 12)
-            cv2.line(frame, START_LINE_RIGHT, END_LINE_RIGHT, (255, 255, 0), 12)
+            cv2.line(frame, START_LINE_RIGHT,
+                     END_LINE_RIGHT, (255, 255, 0), 12)
         frame = cv2.addWeighted(overlay, 0.5, frame, 0.5, 0)
         for object_id in self.tracked_objects:
             car = self.tracked_objects[object_id]
@@ -123,7 +124,8 @@ class Tracker:
                 2,
             )
             cv2.circle(frame, (car.x, car.y), 4, (0, 255, 0), -1)
-            for i in range(1, len(car.path)):
+            path_init = len(car.path) - 20 if len(car.path) > 20 else 0
+            for i in range(path_init, len(car.path)):
                 point1 = car.path[i - 1]
                 point2 = car.path[i]
                 cv2.line(frame, (point1), (point2), (0, 255, 0), 2)
@@ -140,18 +142,19 @@ class Tracker:
             frame, f"Down - {self.count_down}", (START_LINE_A[0], START_LINE_A[1] -
                                                  10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2
         )
-        cv2.putText(
-            frame, f"Left - {self.count_left}", (START_LINE_LEFT[0], START_LINE_LEFT[1] -
-                                                 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2
-        )
-        cv2.putText(
-            frame, f"Right - {self.count_right}", (START_LINE_RIGHT[0], START_LINE_RIGHT[1] -
-                                                   10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2
-        )
+        if config["check_vertical"]:
+            cv2.putText(
+                frame, f"Left - {self.count_left}", (START_LINE_LEFT[0], START_LINE_LEFT[1] -
+                                                     10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2
+            )
+            cv2.putText(
+                frame, f"Right - {self.count_right}", (START_LINE_RIGHT[0], START_LINE_RIGHT[1] -
+                                                       10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2
+            )
 
         if print_output:
             cv2.imshow("Output", frame)
-            cv2.waitKey(1)
+            cv2.waitKey(2)
 
         # Write the frame to the output video
         self.output.write(frame)
@@ -170,7 +173,7 @@ class Tracker:
 
         to_delete = []
         for car in self.tracked_objects:
-            if self.tracked_objects[car].frames_not_found > 3:
+            if self.tracked_objects[car].frames_not_found > 5:
                 self.tracked_objects[car].exit()
                 to_delete.append(car)
 
@@ -226,10 +229,10 @@ class Tracker:
 
     def get_counter_down(self):
         return self.count_down
-    
+
     def get_counter_left(self):
         return self.count_left
-    
+
     def get_counter_right(self):
         return self.count_right
 
@@ -263,3 +266,19 @@ class Tracker:
 
     def get_total(self):
         return self.count_down + self.count_up
+
+    def check_results(self, total_up, total_down):
+        print("\n\n")
+        print("-"*50)
+        print("RESULTS")
+        print("-"*50)
+        if self.count_up == total_up:
+            print(f"Up: OK - {self.count_up}")
+        else:
+            print(f"Up: ERROR - {self.count_up} - {total_up}")
+        if self.count_down == total_down:
+            print(f"Down: OK - {self.count_down}")
+        else:
+            print(f"Down: ERROR - {self.count_down} - {total_down}")
+        print("-"*50)
+        print("\n\n")
