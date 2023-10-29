@@ -5,6 +5,18 @@
 
 This repository contains the code and resources for a car tracking system that combines YOLO v8 (You Only Look Once version 8) for object detection and background subtraction for more robust tracking. The project is aimed at tracking cars in various scenarios, such as surveillance, traffic management, or autonomous vehicle navigation.
 
+## Table of Contents
+
+- [Features](#features)
+- [Step 1: Detecting Cars](#step-1-detecting-cars)
+- [Step 2: Tracking Cars](#step-2-tracking-cars)
+- [Step 3: Visualizing Car Tracking](#step-3-visualizing-car-tracking)
+- [Requirements](#requirements)
+- [Setup](#setup)
+- [Dataset](#dataset)
+- [Contributing](#contributing)
+
+
 ## Features
 
 - Object detection using YOLO v8 for identifying and tracking cars.
@@ -13,9 +25,6 @@ This repository contains the code and resources for a car tracking system that c
 - Easy-to-use Python scripts for tracking and visualization.
 - Detailed documentation and usage instructions.
 
-## Dataset
-
-Recorded videos from the UAB parking lot are used for training and testing.
 
 ## Step 1: Detecting Cars
 
@@ -63,16 +72,6 @@ Direction Indicators: For each tracked car, we provide direction indicators, suc
 
 By including these elements in the output video, we offer a comprehensive visualization of the car tracking data. This makes it easier to interpret the movement patterns of the tracked cars, such as understanding traffic flow, counting vehicles entering or exiting specific areas, or monitoring lane changes.
 
-## Table of Contents
-
-- [Requirements](#requirements)
-- [Setup](#setup)
-- [Usage](#usage)
-- [Example Datasets](#example-datasets)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Requirements
 
 - Python 3.7 or higher
@@ -90,7 +89,3 @@ The dataset used for training and testing consists of recorded videos from the U
 ## Contributing
 
 We welcome contributions to this project. If you find any issues, have suggestions for improvements, or would like to add new features, please feel free to open an issue or submit a pull request.
-
-## License
-
-This project is licensed under the [MIT License](https://chat.openai.com/c/LICENSE).
