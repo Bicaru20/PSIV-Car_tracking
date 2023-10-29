@@ -8,12 +8,12 @@ This repository contains the code and resources for a car tracking system that c
 ## Table of Contents
 
 - [Features](#features)
+- [Dataset](#dataset)
 - [Step 1: Detecting Cars](#step-1-detecting-cars)
 - [Step 2: Tracking Cars](#step-2-tracking-cars)
 - [Step 3: Visualizing Car Tracking](#step-3-visualizing-car-tracking)
 - [Requirements](#requirements)
 - [Setup](#setup)
-- [Dataset](#dataset)
 - [Contributing](#contributing)
 
 
@@ -25,6 +25,9 @@ This repository contains the code and resources for a car tracking system that c
 - Easy-to-use Python scripts for tracking and visualization.
 - Detailed documentation and usage instructions.
 
+## Dataset
+
+The dataset used for training and testing consists of recorded videos from the UAB parking lot. These videos vary in size and complexity, providing a diverse set of scenarios for evaluating the car tracking system.
 
 ## Step 1: Detecting Cars
 
@@ -81,10 +84,6 @@ By including these elements in the output video, we offer a comprehensive visual
 ## Setup
 
 1. Clone the repository to your local machine:	`git clone https://github.com/Bicaru20/PSIV-Car_tracking`
-
-## Dataset
-
-The dataset used for training and testing consists of recorded videos from the UAB parking lot. These videos vary in size and complexity, providing a diverse set of scenarios for evaluating the car tracking system.
 
 ## Contributing
 
