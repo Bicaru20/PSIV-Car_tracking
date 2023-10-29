@@ -31,6 +31,38 @@ In parallel to the YOLO-based approach, we employ background subtraction to iden
 
 By combining these two approaches, we enhance the accuracy and robustness of our car tracking system, ensuring that we can effectively detect and track cars in various real-world scenarios. The subsequent steps of the project will detail how to set up and use these approaches for car tracking.
 
+## Step 2: Tracking Cars
+
+In the second step of the project, we implement a car tracking system that combines the two approaches from the previous step. The system is designed to leverage the strengths of each approach to achieve robust, accurate, and efficient car tracking in various scenarios.
+
+Approach 1: YOLO v8 Object Detection (Every 5 Frames)
+In the first tracking approach, we use YOLO v8 for car detection every 5 frames. This approach provides speed and efficiency as YOLO can process frames quickly. However, it comes at the cost of temporarily losing tracking information between the frames. During the non-detection frames, the tracking system maintains the last known state of each car.
+
+Approach 2: YOLO v8 with Background Subtraction (Every 5 Frames)
+To address the issue of information loss between YOLO detections, we combine YOLO with background subtraction during the 5 frames intervals when YOLO detection is not performed. This hybrid approach aims to reduce the information loss by using background subtraction to identify moving objects even when YOLO is not actively detecting cars. Any objects identified by background subtraction are associated with their corresponding cars from the previous YOLO detection frame.
+
+### Object Tracking and Class ID
+
+To maintain and track information about each car, we utilize an object tracking system. Each car is assigned a unique Class ID, and this ID is used to store information about the car's properties, such as its position, direction, and other relevant data. The Class ID helps in connecting the car's state across frames, even when there is a brief absence of YOLO detection.
+
+This combined tracking approach ensures that we minimize information loss and provide a more complete and reliable tracking system. The Class ID facilitates the association of cars between different frames, enabling us to monitor their movements accurately.
+
+As a result, our car tracking system is capable of not only detecting cars but also following their trajectories and collecting essential data about their behavior. It also allows us to count the number of cars that go in each direction.
+
+## Step 3: Visualizing Car Tracking
+
+In this step, we focus on visualizing the results of our car tracking system. The output of our system is saved in an output file, typically an output video. This video not only displays the tracked cars but also includes visual indicators for tracking direction and direction counting.
+
+The output video is a visual representation of the car tracking process. It features the following elements:
+
+Tracked Cars: Each car is outlined with a bounding box to visually indicate its position in the frame. The color of the bounding box often corresponds to the car's Class ID for easy reference.
+
+Direction Counting Lines: In the video, lines are drawn across the road or relevant paths. These lines serve as reference points for tracking the direction of the cars. When a car crosses one of these lines, its direction is recorded and visualized.
+
+Direction Indicators: For each tracked car, we provide direction indicators, such as "up," "down," "left," or "right." These indicators are displayed alongside the car's bounding box and are updated as the car changes direction.
+
+By including these elements in the output video, we offer a comprehensive visualization of the car tracking data. This makes it easier to interpret the movement patterns of the tracked cars, such as understanding traffic flow, counting vehicles entering or exiting specific areas, or monitoring lane changes.
+
 ## Table of Contents
 
 - [Requirements](#requirements)
