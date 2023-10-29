@@ -37,77 +37,90 @@ correct_results = {
 if __name__ == '__main__':
 
     # Path to the video file
-    path_file = "short.mp4"
+    path_files = ["short.mp4", "middle.mp4",
+                  "shadow.mp4", "long_1.mp4", "long_2.mp4"]
 
-    cap = cv2.VideoCapture("videos/" + path_file)
+    for file in path_files:
 
-    # Initialize the YOLOv8 model
-    predictor = Predictor(yolo_model_path='yolov8n.pt')
+        frame_jump = config["frame_jump"]
 
-    # Initialize the Tracker
-    tracker = Tracker(cap)
+        print("\n" + "-" * 50)
+        print(f"Processing video: {file}")
+        print("-" * 50)
 
-    count = 0
+        cap = cv2.VideoCapture("videos/" + file)
 
-    print("\n" + "-" * 50)
-    print("Starting the video...")
-    print(f"Cap Status: {cap.isOpened()}")
+        # Initialize the YOLOv8 model
+        predictor = Predictor(yolo_model_path='yolov8n.pt')
 
-    while cap.isOpened():
+        # Initialize the Tracker
+        tracker = Tracker(cap)
 
-        start_time = time.time()
+        count = 0
 
-        # Temporal limit
-        if count == 0:
-            cap.set(cv2.CAP_PROP_POS_FRAMES, config["frame_start"])
-        if config["frame_end"]:
-            if count >= config["frame_end"]:
+        print("\n" + "-" * 50)
+        print("Starting the video...")
+        print(f"Cap Status: {cap.isOpened()}")
+
+        while cap.isOpened():
+
+            start_time = time.time()
+
+            # Temporal limit
+            if count == 0:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, config["frame_start"])
+            if config["frame_end"]:
+                if count >= config["frame_end"]:
+                    cap.release()
+
+            # Read the frame
+            success, frame = cap.read()
+
+            # Check if we are at the end of the video
+            if not success:
+                print("End of the video")
                 cap.release()
+                break
 
-        # Read the frame
-        success, frame = cap.read()
+            # Detect cars in the frame
+            centroids = predictor.predict(frame)
 
-        # Check if we are at the end of the video
-        if not success:
-            print("End of the video")
-            cap.release()
-            break
+            if centroids is None:
+                continue
 
-        # Detect cars in the frame
-        centroids = predictor.predict(frame)
+            # Track the cars
+            tracker.identify_cars(centroids)
+            tracker.update_counters()
+            tracker.update_output(frame=frame, n_frame=count,
+                                  fps=((1 / (time.time() - start_time))
+                                       * frame_jump),
+                                  print_output=config["show"])
 
-        if centroids is None:
-            continue
+            # Display the number of cars going up, down and left
+            print("\n---------------------------------------------")
+            print(f"Frame: {count}/{cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
+            print("FPS: ", (1 / (time.time() - start_time))
+                  * frame_jump)
+            print("---------------------------------------------")
+            print("Counter UP:", tracker.get_counter_up())
+            print("Counter DOWN:", tracker.get_counter_down())
+            print("Counter LEFT:", tracker.get_counter_left())
+            print("Counter RIGHT:", tracker.get_counter_right())
+            print("---------------------------------------------")
+            print("Current Up: ", tracker.get_current_up())
+            print("Current Down: ", tracker.get_current_down())
+            print("Current Left: ", tracker.get_current_left())
+            print("Current Right: ", tracker.get_current_right())
+            print("\n")
 
-        # Track the cars
-        tracker.identify_cars(centroids)
-        tracker.update_counters()
-        tracker.update_output(frame=frame, n_frame=count,
-                              fps=((1 / (time.time() - start_time)) * config["frame_jump"]),
-                              print_output=config["show"])
+            frame_jump = config["frame_jump"] if not tracker.any_movement() else 1
+            count += frame_jump
+            cap.set(cv2.CAP_PROP_POS_FRAMES, count)
 
-        # Display the number of cars going up, down and left
-        print("\n---------------------------------------------")
-        print(f"Frame: {count}/{cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
-        print("FPS: ", (1 / (time.time() - start_time)) * config["frame_jump"])
-        print("---------------------------------------------")
-        print("Counter UP:", tracker.get_counter_up())
-        print("Counter DOWN:", tracker.get_counter_down())
-        print("Counter LEFT:", tracker.get_counter_left())
-        print("Counter RIGHT:", tracker.get_counter_right())
-        print("---------------------------------------------")
-        print("Current Up: ", tracker.get_current_up())
-        print("Current Down: ", tracker.get_current_down())
-        print("Current Left: ", tracker.get_current_left())
-        print("Current Right: ", tracker.get_current_right())
-        print("\n")
+        # Show the results
+        tracker.check_results(correct_results[file].get(
+            "up"), correct_results[file].get("down"))
 
-        count += config["frame_jump"]
-        cap.set(cv2.CAP_PROP_POS_FRAMES, count)
-
-    # Show the results
-    tracker.check_results(correct_results[path_file].get("up"), correct_results[path_file].get("down"))
-
-    cap.release()
-    tracker.output.release()
-    cv2.destroyAllWindows()
+        cap.release()
+        tracker.output.release()
+        cv2.destroyAllWindows()

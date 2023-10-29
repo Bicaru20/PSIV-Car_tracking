@@ -41,6 +41,6 @@ class Id:
 
     def update_last_direction(self):
         alfa = 2
-        if abs(self.path[-2][0] - self.path[-1][0]) > alfa and abs(self.path[-2][1] - self.path[-1][1]) > alfa:
-            self.last_direction_y = "left" if self.path[-2][0] > self.path[-1][0] else "right"
-            self.last_direction_x = "up" if self.path[-2][1] > self.path[-1][1] else "down"
+        if abs(self.path[-2][0] - self.path[-1][0]) > alfa or abs(self.path[-2][1] - self.path[-1][1]) > alfa:
+            self.last_direction_y = "left" if self.path[-2][0] > self.path[-1][0] + alfa else "right" if self.path[-2][0] < self.path[-1][0] - alfa else None
+            self.last_direction_x = "up" if self.path[-2][1] > self.path[-1][1] + alfa else "down" if self.path[-2][1] < self.path[-1][1] - alfa else None

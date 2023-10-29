@@ -61,9 +61,10 @@ class Predictor:
         centroids = []
         for car_result in results:
             for i, data in enumerate(car_result.boxes.data.tolist()):
-                print("\n-----------------------------")
-                print(f"Car {i}:")
-                print(data)
+                if config["show"]:
+                    print("\n-----------------------------")
+                    print(f"Car {i}:")
+                    print(data)
                 x1, y1, x2, y2, conf, clas = data
                 if clas == 2:
                     x = int(x1)
